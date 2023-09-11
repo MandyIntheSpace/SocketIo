@@ -28,7 +28,7 @@ const registerUser = asyncHandler(async (req, res) => {
     })
 
     if (user) {
-        res.status(201).json({
+        res.json({
             _id: user._id,
             name: user.name,
             pic: user.pic,
@@ -42,4 +42,26 @@ const registerUser = asyncHandler(async (req, res) => {
 
 })
 
-module.exports = { registerUser }
+const authUser = asyncHandler(async (req, res) => {
+
+    const { email, password } = req.body
+
+    const user = await User.findOne({ email })
+
+    if (user && (await user.matchPassword(password))) {
+        res.status(200).json({
+            _id: user._id,
+            name: user.name,
+            pic: user.email,
+            token: generateToken(user._id)
+        })
+    }
+    else{
+        res.status(400)
+        throw new Error("Username and password did not matched")
+    }
+
+
+})
+
+module.exports = { registerUser, authUser }
