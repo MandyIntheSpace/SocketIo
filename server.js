@@ -5,6 +5,7 @@ const dotenv = require('dotenv')
 const { chats } = require('./data/data')
 const cors = require('cors')
 const connectDB = require('./config/db')
+const userRoutes = require('./routes/userRoutes')
 
 const app = express()
 dotenv.config()
@@ -12,6 +13,10 @@ dotenv.config()
 app.use(cors())
 
 connectDB()
+
+
+app.use("/api/user", userRoutes)
+
 
 const port = process.env.PORT || 6000
 
