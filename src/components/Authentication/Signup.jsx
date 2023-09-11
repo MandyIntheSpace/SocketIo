@@ -14,12 +14,12 @@ export default function Signup() {
     const [pic, setPic] = useState()
     const [show, setShow] = useState(false)
     const toast = useToast()
-    const[picLoading, setPicLoading] = useState(false)
+    const [picLoading, setPicLoading] = useState(false)
 
     const handleClick = () => setShow(!show)
 
-    const submitHandler = async() => {
-        if (!name ||!email || !password || !confirmPassword) {
+    const submitHandler = async () => {
+        if (!name || !email || !password || !confirmPassword) {
             toast({
                 title: "Please fill all the fields",
                 status: "warning",
@@ -45,7 +45,7 @@ export default function Signup() {
 
     }
 
-    const postDetails = () => {}
+    const postDetails = () => { }
 
 
 
@@ -75,11 +75,11 @@ export default function Signup() {
                         placeholder='Enter your Password'
                         onChange={(e) => setPassword(e.target.value)}
                     />
-                        <InputRightElement width={"4.5rem"}>
-                            <Button h={"1.7rem"} size={'sm'} onClick={handleClick}>
-                                {show ? "Hide" : "Show"}
-                            </Button>
-                        </InputRightElement>
+                    <InputRightElement width={"4.5rem"}>
+                        <Button h={"1.7rem"} size={'sm'} onClick={handleClick}>
+                            {show ? "Hide" : "Show"}
+                        </Button>
+                    </InputRightElement>
                 </InputGroup>
             </FormControl>
 
@@ -91,31 +91,31 @@ export default function Signup() {
                         placeholder='Enter your Password'
                         onChange={(e) => setConfirmPassword(e.target.value)}
                     />
-                        <InputRightElement width={"4.5rem"}>
-                            <Button h={"1.7rem"} size={'sm'} onClick={handleClick}>
-                                {show ? "Hide" : "Show"}
-                            </Button>
-                        </InputRightElement>
+                    <InputRightElement width={"4.5rem"}>
+                        <Button h={"1.7rem"} size={'sm'} onClick={handleClick}>
+                            {show ? "Hide" : "Show"}
+                        </Button>
+                    </InputRightElement>
                 </InputGroup>
             </FormControl>
 
             <FormControl id='first-pic'>
                 <FormLabel>Upload your Picture</FormLabel>
                 <Input
-                type='file'
-                p={1.5}
-                accept='image/*'
-                onChange={(e) => postDetails()}
+                    type='file'
+                    p={1.5}
+                    accept='image/*'
+                    onChange={(e) => postDetails()}
                 />
             </FormControl>
 
             <Button
-            colorScheme='blue'
-            width={'100%'}
-            style={{marginTop: 15}}
-            onClick={submitHandler}
+                colorScheme='blue'
+                width={'100%'}
+                style={{ marginTop: 15 }}
+                onClick={submitHandler}
             >
-                Login
+                Sign Up
             </Button>
 
         </VStack>

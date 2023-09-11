@@ -23,7 +23,7 @@ export default function HomePage() {
             fontFamily={'Roboto'}
             color={"black"}
             fontWeight={'bold'}
-          >LogIn</Text>
+          >Authentications</Text>
         </Box>
 
         <Box
@@ -40,10 +40,10 @@ export default function HomePage() {
             </TabList>
             <TabPanels>
               <TabPanel>
-                {<Login/>}
+                {<Login />}
               </TabPanel>
               <TabPanel>
-                {<Signup/>}
+                {<Signup />}
               </TabPanel>
             </TabPanels>
           </Tabs>
