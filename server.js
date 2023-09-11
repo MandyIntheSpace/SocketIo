@@ -4,28 +4,14 @@ const socketio = require('socket.io')
 const dotenv = require('dotenv')
 const { chats } = require('./data/data')
 const cors = require('cors')
+const connectDB = require('./config/db')
 
 const app = express()
 dotenv.config()
 
 app.use(cors())
 
-
-
-app.get("/", (req, res) => {
-    res.status(200).json({
-        message: "The first get method has successfully started"
-    })
-})
-
-app.get("/api/chat", (req, res) => {
-    res.status(200).send(chats)
-})
-
-app.get("/api/chat/:id", (req, res) => {
-    const singleChats = chats.find((c) => c._id === req.params.id)
-    res.send(singleChats)
-})
+connectDB()
 
 const port = process.env.PORT || 6000
 
