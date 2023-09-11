@@ -6,6 +6,7 @@ const { chats } = require('./data/data')
 const cors = require('cors')
 const connectDB = require('./config/db')
 const userRoutes = require('./routes/userRoutes')
+const bodyParser = require('body-parser')
 
 const app = express()
 dotenv.config()
@@ -15,6 +16,8 @@ app.use(cors())
 connectDB()
 
 
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use("/api/user", userRoutes)
 
 
