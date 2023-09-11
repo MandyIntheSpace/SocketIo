@@ -1,5 +1,8 @@
 import React from 'react'
 import { Container, Box, Text } from '@chakra-ui/react'
+import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+import Login from '../components/Authentication/Login'
+import Signup from '../components/Authentication/Signup'
 
 export default function HomePage() {
   return (
@@ -24,13 +27,26 @@ export default function HomePage() {
         </Box>
 
         <Box
-        p={4}
-        bg={'white'}
-        borderRadius={'1g'}
-        borderWidth='2px'
-        width={'100%'}
+          p={4}
+          bg={'white'}
+          borderRadius={'1g'}
+          borderWidth='2px'
+          width={'100%'}
         >
-
+          <Tabs variant='soft-rounded' colorScheme='green'>
+            <TabList mb={'1em'}>
+              <Tab width={'50%'}>Login</Tab>
+              <Tab width={'50%'}>Sign up</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                {<Login/>}
+              </TabPanel>
+              <TabPanel>
+                {<Signup/>}
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
         </Box>
 
       </Container>
