@@ -4,6 +4,8 @@ import {
     , InputRightElement, Button
 } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/react'
+import Axios from 'axios'
+import {useNavigate} from 'react-router-dom'
 
 export default function Signup() {
 
@@ -15,10 +17,13 @@ export default function Signup() {
     const [show, setShow] = useState(false)
     const toast = useToast()
     const [picLoading, setPicLoading] = useState(false)
+    const navigate = useNavigate()
 
     const handleClick = () => setShow(!show)
 
     const submitHandler = async () => {
+        setPicLoading(true)
+        console.log("i am here")
         if (!name || !email || !password || !confirmPassword) {
             toast({
                 title: "Please fill all the fields",
@@ -42,10 +47,96 @@ export default function Signup() {
         }
         console.log(email, password, confirmPassword, pic)
 
+        try {
+
+            const config = {
+                headers: {
+                    "Content-type": "application/json"
+                }
+            }
+
+            const { data } = await Axios.post(
+                "http://localhost:5000/api/user", {
+                    name,
+                    email,
+                    password,
+                    pic,
+                },
+                config
+            );
+            console.log(data)
+
+            toast({
+                title: "User successfully stored",
+                duration: 2000,
+                isClosable: true,
+                status: 'success',
+                position: 'top-right'
+            })
+            localStorage.setItem('userInfo', JSON.stringify(data))
+            setPicLoading(false)
+            navigate("/chat")
+
+        } catch (err) {
+            console.log(err.message)
+            toast({
+                title: "Error Occured",
+                description: err.response.data.message,
+                status: 'error',
+                duration: 2000,
+                isClosable: true,
+                position: 'top-right',
+            })
+            setPicLoading(false)
+        }
 
     }
 
-    const postDetails = () => { }
+    const postDetails = (pics) => {
+        setPicLoading(true)
+        if (pics === undefined) {
+            toast({
+                title: "Please select the image",
+                duration: 2000,
+                isClosable: true,
+                status: 'warning',
+                position: 'top-right'
+            })
+            return;
+        }
+
+        if (pics.type === 'image/jpeg' || pics.type === 'image/png') {
+            const data = new FormData()
+            data.append("file", pics)
+            data.append("upload_preset", "socketapp")
+            data.append("cloud_name", "dsksetclo")
+            fetch("https://api.cloudinary.com/v1_1/dsksetclo/image/upload", {
+                method: 'post',
+                body: data,
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    setPic(data.url.toString())
+                    console.log(data.url.toString())
+                    setPicLoading(false)
+                })
+                .catch((err) => {
+                    console.log(err)
+                    setPicLoading(false)
+                })
+        } else {
+            toast({
+                title: "Please select an image",
+                duration: 10000,
+                isClosable: true,
+                status: 'warning',
+                position: 'top-right'
+            })
+            setPicLoading(false)
+            return;
+        }
+
+    }
 
 
 
@@ -105,7 +196,7 @@ export default function Signup() {
                     type='file'
                     p={1.5}
                     accept='image/*'
-                    onChange={(e) => postDetails()}
+                    onChange={(e) => postDetails(e.target.files[0])}
                 />
             </FormControl>
 
@@ -114,6 +205,7 @@ export default function Signup() {
                 width={'100%'}
                 style={{ marginTop: 15 }}
                 onClick={submitHandler}
+                isLoading={picLoading}
             >
                 Sign Up
             </Button>
