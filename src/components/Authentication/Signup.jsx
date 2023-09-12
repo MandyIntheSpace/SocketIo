@@ -32,6 +32,7 @@ export default function Signup() {
                 isClosable: true,
                 position: "bottom"
             })
+            setPicLoading(false)
             return;
         }
 
@@ -75,7 +76,6 @@ export default function Signup() {
             })
             localStorage.setItem('userInfo', JSON.stringify(data))
             setPicLoading(false)
-            navigate("/chat")
 
         } catch (err) {
             console.log(err.message)
