@@ -10,7 +10,9 @@ const chatModel = mongoose.Schema(
       ref: "Message",
     },
     groupAdmin: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    isModifiedNew: { type: Boolean, default: false },
   },
+
   { timestamps: true }
 );
 

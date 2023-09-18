@@ -5,13 +5,16 @@ const {
   accessChat,
   fetchChat,
   createGroupChat,
+  renameGroup,
+  addToGroup,
+  removeFromGroup,
 } = require("../controller/chatController");
 
 router.post("/access", authMiddlerware, accessChat);
 router.get("/fetchChat", authMiddlerware, fetchChat);
 router.post("/groupChat", authMiddlerware, createGroupChat);
-// router.post(authMiddlerware, renameGroup)
-// router.put(authMiddlerware, removeFromGroup)
-// router.put(authMiddlerware, addToGroup)
+router.put("/rename", authMiddlerware, renameGroup);
+router.put("/addMember", authMiddlerware, addToGroup);
+router.put("/removeMember", authMiddlerware, removeFromGroup);
 
 module.exports = router;
