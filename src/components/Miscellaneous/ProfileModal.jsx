@@ -19,12 +19,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function ProfileModal({ user, children }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const navigate = useNavigate()
-
-  const logOutHandler = () => {
-    localStorage.removeItem('userinfo')
-    navigate("/")
-  }
+  const navigate = useNavigate();
 
   return (
     <div>

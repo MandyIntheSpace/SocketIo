@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import {
   Box,
   Button,
@@ -12,11 +13,19 @@ import {
   MenuDivider,
   useDisclosure,
   Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  Input,
+  useToast,
 } from "@chakra-ui/react";
 import { BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { ChatState } from "../../context/ChatProvider";
 import ProfileModal from "./ProfileModal";
 import { useNavigate } from "react-router-dom";
+import ChatLoading from "../ChatLoading/ChatLoading";
+import UserListItems from "../UserAvator/UserListItems"
 export default function SideDrawer() {
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
@@ -25,11 +34,54 @@ export default function SideDrawer() {
   const { user } = ChatState();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
 
   const logOutHandler = () => {
     localStorage.removeItem("userinfo");
     navigate("/");
   };
+
+  const handleSearch = async () => {
+    if (!search) {
+      toast({
+        title: "Please Enter Something in search",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top-left",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+
+      const { data } = await axios.get(
+        `http://localhost:5000/api/user?search=${search}`,
+        config
+      );
+      console.log(data);
+      setLoading(false);
+      setSearchResult(data);
+    } catch (error) {
+      toast({
+        title: "Error Occured",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top-left",
+      });
+    }
+  };
+
+  const accessChat = () => {
+    
+  }
 
   return (
     <div>
@@ -43,7 +95,7 @@ export default function SideDrawer() {
         borderWidth={"5px"}
       >
         <Tooltip label="Search for users" hasArrow placement="bottom">
-          <Button variant={"ghost"}>
+          <Button variant={"ghost"} onClick={onOpen}>
             <i className="fa-solid fa-magnifying-glass"></i>
             <Text display={{ base: "none", md: "flex" }} px="4">
               Search For User
@@ -83,8 +135,36 @@ export default function SideDrawer() {
         </div>
       </Box>
 
-      <Drawer placement="left" onClose={onClose}>
-        
+      <Drawer placement="left" onClose={onClose} isOpen={isOpen}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerHeader borderBottomWidth={"1px"}>Search Users</DrawerHeader>
+          <DrawerBody>
+            <Box display={"flex"} pb={2}>
+              <Input
+                placeholder="Search by name or email"
+                mr={2}
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
+              />
+              <Button onClick={handleSearch}>Go</Button>
+            </Box>
+
+            {loading ? (
+              <ChatLoading />
+            ) : (
+              searchResult?.map((user) => (
+                <UserListItems
+                  user={user}
+                  key={user._id}
+                  handleAccessControl={() => accessChat(user._id)}
+                />
+              ))
+            )}
+          </DrawerBody>
+        </DrawerContent>
       </Drawer>
     </div>
   );
