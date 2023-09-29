@@ -19,19 +19,20 @@ import {
   DrawerBody,
   Input,
   useToast,
+  Spinner,
 } from "@chakra-ui/react";
 import { BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { ChatState } from "../../context/ChatProvider";
 import ProfileModal from "./ProfileModal";
 import { useNavigate } from "react-router-dom";
 import ChatLoading from "../ChatLoading/ChatLoading";
-import UserListItems from "../UserAvator/UserListItems"
+import UserListItems from "../UserAvator/UserListItems";
 export default function SideDrawer() {
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
   const [chatLoading, setChatLoading] = useState(false);
-  const { user } = ChatState();
+  const { user, selectedChat, setSelectedChat, chats, setChats } = ChatState();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -62,7 +63,7 @@ export default function SideDrawer() {
       };
 
       const { data } = await axios.get(
-        `http://localhost:5000/api/user?search=${search}`,
+        `http://localhost:5000/api/user/search?search=${search}`,
         config
       );
       console.log(data);
@@ -70,18 +71,51 @@ export default function SideDrawer() {
       setSearchResult(data);
     } catch (error) {
       toast({
-        title: "Error Occured",
+        title: "Error Occured in search",
         status: "error",
         duration: 5000,
         isClosable: true,
         position: "top-left",
       });
+      console.log(error.message);
     }
   };
 
-  const accessChat = () => {
-    
-  }
+  const accessChat = async (userId) => {
+    try {
+      setChatLoading(true);
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+
+      const { data } = await axios.post(
+        "http://localhost:5000/api/chat/access",
+        { userId },
+        config
+      );
+
+      if (!chats.find((c) => c._id === data._id)) {
+        setChats([data, ...chats]);
+      }
+
+      console.log(data);
+      setSelectedChat(data);
+      setChatLoading(false);
+      onClose();
+    } catch (error) {
+      toast({
+        title: "Error fetching the chat",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-left",
+      });
+    }
+  };
 
   return (
     <div>
@@ -163,6 +197,9 @@ export default function SideDrawer() {
                 />
               ))
             )}
+            {
+              chatLoading && <Spinner ml={"auto"} display={"flex"}/>
+            }
           </DrawerBody>
         </DrawerContent>
       </Drawer>
