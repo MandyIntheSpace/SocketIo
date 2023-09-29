@@ -198,7 +198,7 @@ const removeFromGroup = asyncHandler(async (req, res) => {
     .populate("users", "-password")
     .populate("groupAdmin", "-password");
 
-  res.status(200).json(removeMember)
+  res.status(200).json(removeMember);
 });
 
 module.exports = {

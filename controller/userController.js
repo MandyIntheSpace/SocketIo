@@ -57,24 +57,21 @@ const authUser = asyncHandler(async (req, res) => {
 });
 
 const allUser = asyncHandler(async (req, res) => {
-  try {
-    const searchName = req.query.name;
-    console.log(searchName);
+  const keyword = req.query.search
+    ? {
+        $or: [
+          {
+            name: { $regex: req.query.search, $options: "i" },
+          },
+          {
+            email: { $regex: req.query.search, $options: "i" },
+          },
+        ],
+      }
+    : {};
 
-    const regex = new RegExp(searchName, "i");
-
-    const user = await User.find({ name: regex });
-
-    if (!user || user.lenght === 0) {
-      throw new Error("No use found.....");
-    }
-
-    res.status(200).json(user);
-  } catch (err) {
-    res.status(400).json({
-      msg: err.messsage,
-    });
-  }
+  const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+  res.send(users);
 });
 
 module.exports = { registerUser, authUser, allUser };
