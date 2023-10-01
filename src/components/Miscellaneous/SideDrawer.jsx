@@ -66,9 +66,9 @@ export default function SideDrawer() {
         `http://localhost:5000/api/user/search?search=${search}`,
         config
       );
-      console.log(data);
       setLoading(false);
       setSearchResult(data);
+      console.log(searchResult)
     } catch (error) {
       toast({
         title: "Error Occured in search",
