@@ -3,7 +3,6 @@ import React from "react";
 import { ChatState } from "../../context/ChatProvider";
 
 export default function UserListItems({ user, handleAccessControl }) {
-
   return (
     <div>
       <Box

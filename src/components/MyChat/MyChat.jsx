@@ -7,7 +7,7 @@ import ChatLoading from "../ChatLoading/ChatLoading";
 import { getSender } from "../../config/ChatLogic";
 import GroupModal from "../Miscellaneous/GroupModal";
 
-export default function MyChat() {
+export default function MyChat({ fetchAgain }) {
   const { user, selectedChat, setSelectedChat, chats, setChats } = ChatState();
   const toast = useToast();
   const [loggedUser, setLoggedUser] = useState();
@@ -15,14 +15,16 @@ export default function MyChat() {
   const fetchChats = async () => {
     try {
       const config = {
-        "Content-type": "application/json",
-        Authorization: `Bearer${user.token}`,
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
       };
       const { data } = await axios.get(
-        "http://localhost:5000/api/chat/access",
+        "http://localhost:5000/api/chat/fetchChat",
         config
       );
       setChats(data);
+      console.log(chats);
     } catch (error) {
       toast({
         title: "Error Occured",
@@ -38,7 +40,7 @@ export default function MyChat() {
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
     fetchChats();
-  }, []);
+  }, [fetchAgain]);
 
   return (
     <Box
@@ -82,12 +84,17 @@ export default function MyChat() {
         w={"100%"}
         h={"100%"}
         borderRadius={"lg"}
+        overflow={"scroll"}
       >
         {chats ? (
           <Stack overflowY={"scroll"}>
             {chats.map((chat) => (
               <Box
-                onClick={() => setSelectedChat(chat)}
+                // onClick={() => setSelectedChat(chat)}
+                onClick={() => {
+                  setSelectedChat(chat);
+                  console.log("Selected Chat:", chat);
+                }}
                 cursor={"pointer"}
                 bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
                 color={selectedChat === chat ? "white" : "black"}

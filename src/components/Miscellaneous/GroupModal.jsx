@@ -72,6 +72,40 @@ export default function GroupModal({ children }) {
         position: "top",
       });
     }
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+
+      const { data } = await axios.post(
+        "http://localhost:5000/api/chat/groupChat",
+        {
+          name: groupChatName,
+          users: JSON.stringify(selectedUser.map((user) => user._id)),
+        },
+        config
+      );
+      setChats([data, ...chats]);
+      onClose();
+      toast({
+        title: "New Group Chat Created",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to create the chat",
+        status: "error",
+        description: error.message,
+        isClosable: true,
+        position: "bottom",
+      });
+    }
   };
 
   const handleAddFunction = (userToAdd) => {
