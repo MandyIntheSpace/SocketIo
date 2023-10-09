@@ -165,7 +165,15 @@ const addToGroup = asyncHandler(async (req, res) => {
     .populate("users", "-password")
     .populate("groupAdmin", "-password");
 
-  res.status(200).json(addNewMember);
+    if (!addNewMember) {
+      res.status(404)
+      throw new Error("Chat Not Found")
+    } else{
+      res.json(addNewMember)
+    }
+
+
+  // res.status(200).json(addNewMember);
 });
 
 const removeFromGroup = asyncHandler(async (req, res) => {

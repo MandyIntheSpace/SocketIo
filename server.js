@@ -8,6 +8,7 @@ const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const bodyParser = require("body-parser");
 const chatRoutes = require("./routes/chatRoutes");
+const messageRoutes = require("./routes/messageRoutes")
 
 const app = express();
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/message", messageRoutes);
 
 const port = process.env.PORT || 6000;
 
