@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ChatState } from "../../context/ChatProvider";
 import {
   Box,
@@ -7,26 +7,93 @@ import {
   Spinner,
   Text,
   Input,
+  Toast,
+  useToast,
 } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import { getSender, getSenderFull } from "../../config/ChatLogic";
 import ProfileModal from "../Miscellaneous/ProfileModal";
 import UpdateGroupChatModal from "../Miscellaneous/UpdateGroupChatModal";
 import axios from "axios";
+import "../style.css";
+import ScrollableChat from "../ScrollableChat/ScrollableChat";
+import io from "socket.io-client";
+
+const ENDPOINT = "http://localhost:5000";
+let socket, selectedChatComapre;
 
 export default function SingleChat({ fetchAgain, setFetchAgain }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState([]);
   const [newMessage, setNewMessage] = useState();
+  const toast = useToast();
+  const [socketConnection, setSocketConnection] = useState(false);
 
   const { user, selectedChat, setSelectedChat } = ChatState();
+
+  const fetchMessage = async () => {
+    if (!selectedChat) return;
+    try {
+      setLoading(true);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axios.get(
+        `http://localhost:5000/api/message/${selectedChat._id}`,
+        config
+      );
+      console.log(message);
+      setMessage(data);
+      setLoading(false);
+      socket.emit("join chat", selectedChat._id);
+    } catch (error) {
+      toast({
+        title: "Error Occured!",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    }
+  };
+
+  useEffect(() => {
+    socket = io(ENDPOINT);
+    socket.emit("setup", user);
+    socket.on("connection", () => {
+      setSocketConnection(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    fetchMessage();
+    selectedChatComapre = selectedChat;
+  }, [selectedChat]);
+
+  useEffect(() => {
+    socket.on("message recived", (newMessageReceive) => {
+      if (
+        !selectedChatComapre ||
+        selectedChatComapre._id !== newMessageReceive.chat._id
+      ) {
+        //givr the notification
+      } else {
+        setMessage([...message, newMessageReceive]);
+      }
+    });
+  });
+
   const sendMessages = async (event) => {
     if (event.key === "Enter" && newMessage) {
+      console.log(newMessage);
       try {
         const config = {
           headers: {
-            "Content-Type": "application/json",
-            Authorizaton: `Bearer ${user.token}`,
+            "Content-type": "application/json",
+            Authorization: `Bearer ${user.token}`,
           },
         };
         const { data } = await axios.post(
@@ -37,9 +104,22 @@ export default function SingleChat({ fetchAgain, setFetchAgain }) {
           },
           config
         );
+
+        console.log(data);
         setNewMessage("");
+        socket.emit("new message", data)
         setMessage([...message, data]);
-      } catch (error) {}
+      } catch (error) {
+        toast({
+          title: "Error Occured!",
+          description: error.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom",
+        });
+        console.log(error.message);
+      }
     }
   };
   const typingHandler = (e) => {
@@ -104,7 +184,9 @@ export default function SingleChat({ fetchAgain, setFetchAgain }) {
                 margin={"auto"}
               />
             ) : (
-              <div>{/* message */}</div>
+              <div className="message">
+                <ScrollableChat message={message} />
+              </div>
             )}
 
             <FormControl onKeyDown={sendMessages} isRequired mt={3}>
