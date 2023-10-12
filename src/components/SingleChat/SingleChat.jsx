@@ -18,6 +18,8 @@ import axios from "axios";
 import "../style.css";
 import ScrollableChat from "../ScrollableChat/ScrollableChat";
 import io from "socket.io-client";
+import Lottie from "react-lottie-player";
+import typingData from "../../animation/typing.json"
 
 const ENDPOINT = "http://localhost:5000";
 let socket, selectedChatComapre;
@@ -64,7 +66,7 @@ export default function SingleChat({ fetchAgain, setFetchAgain }) {
 
   const sendMessages = async (event) => {
     if (event.key === "Enter" && newMessage) {
-      socket.emit("stop typing", selectedChat._id)
+      socket.emit("stop typing", selectedChat._id);
       console.log(newMessage);
       try {
         const config = {
@@ -112,7 +114,6 @@ export default function SingleChat({ fetchAgain, setFetchAgain }) {
     fetchMessage();
     selectedChatComapre = selectedChat;
   }, [selectedChat]);
-
 
   useEffect(() => {
     socket.on("message recived", (newMessageReceive) => {
@@ -210,7 +211,18 @@ export default function SingleChat({ fetchAgain, setFetchAgain }) {
               </div>
             )}
             <FormControl onKeyDown={sendMessages} isRequired mt={3}>
-              {isTyping ? (<div>Loading....</div>) : (<></>)}
+              {isTyping ? (
+                <div>
+                  <Lottie
+                    loop
+                    animationData={typingData}
+                    play
+                    style={{ marginBottom: 15, marginLeft: 0, width: 70 }}
+                  />
+                </div>
+              ) : (
+                <></>
+              )}
               <Input
                 placeholder="Enter a message"
                 bg={"#E0E0E0"}
