@@ -30,7 +30,7 @@ const server = app.listen(port, () => {
 });
 
 const io = require("socket.io")(server, {
-  pingTimeout: 60000,
+  pingTimeout: 600000,
   cors: {
     origin: "http://localhost:3000",
   },
@@ -41,13 +41,16 @@ io.on("connection", (socket) => {
   socket.on("setup", (userData) => {
     socket.join(userData._id);
     console.log(userData._id);
-    console.log(userData.name)
+    console.log(userData.name);
     socket.emit("connected");
 
     socket.on("join chat", (room) => {
       socket.join(room);
       console.log(`User Joined the room ${room}`);
     });
+
+    socket.on("typing", (room) => socket.in(room).emit("typing"));
+    socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
 
     socket.on("new message", (newMessageReceive) => {
       let chat = newMessageReceive.chat;
@@ -57,5 +60,11 @@ io.on("connection", (socket) => {
         socket.in(user._id).emit("message recived", newMessageReceive);
       });
     });
+
+    socket.off("setup", () => {
+      console.log("USER DISCONNECTED!!!!");
+      socket.leave(userData._id)
+    })
+
   });
 });
