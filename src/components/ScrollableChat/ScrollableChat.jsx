@@ -32,7 +32,7 @@ export default function ScrollableChat({ message }) {
                 padding: "5px 15px",
                 maxWidth: "75%",
                 marginLeft: isSameSenderMargin(message, m, index, user._id),
-                marginTop: isSameUser(message, m, index, user._id) ? 10 : 3
+                marginTop: isSameUser(message, m, index, user._id) ? 3 : 10
               }}
             >
               {m.content}

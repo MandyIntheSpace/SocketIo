@@ -28,6 +28,8 @@ export default function SingleChat({ fetchAgain, setFetchAgain }) {
   const [newMessage, setNewMessage] = useState();
   const toast = useToast();
   const [socketConnection, setSocketConnection] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   const { user, selectedChat, setSelectedChat } = ChatState();
 
@@ -60,34 +62,9 @@ export default function SingleChat({ fetchAgain, setFetchAgain }) {
     }
   };
 
-  useEffect(() => {
-    socket = io(ENDPOINT);
-    socket.emit("setup", user);
-    socket.on("connection", () => {
-      setSocketConnection(true);
-    });
-  }, []);
-
-  useEffect(() => {
-    fetchMessage();
-    selectedChatComapre = selectedChat;
-  }, [selectedChat]);
-
-  useEffect(() => {
-    socket.on("message recived", (newMessageReceive) => {
-      if (
-        !selectedChatComapre ||
-        selectedChatComapre._id !== newMessageReceive.chat._id
-      ) {
-        //givr the notification
-      } else {
-        setMessage([...message, newMessageReceive]);
-      }
-    });
-  });
-
   const sendMessages = async (event) => {
     if (event.key === "Enter" && newMessage) {
+      socket.emit("stop typing", selectedChat._id)
       console.log(newMessage);
       try {
         const config = {
@@ -107,7 +84,7 @@ export default function SingleChat({ fetchAgain, setFetchAgain }) {
 
         console.log(data);
         setNewMessage("");
-        socket.emit("new message", data)
+        socket.emit("new message", data);
         setMessage([...message, data]);
       } catch (error) {
         toast({
@@ -122,8 +99,52 @@ export default function SingleChat({ fetchAgain, setFetchAgain }) {
       }
     }
   };
+
+  useEffect(() => {
+    socket = io(ENDPOINT);
+    socket.emit("setup", user);
+    socket.on("connected", () => setSocketConnection(true));
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("stop typing", () => setIsTyping(false));
+  }, []);
+
+  useEffect(() => {
+    fetchMessage();
+    selectedChatComapre = selectedChat;
+  }, [selectedChat]);
+
+
+  useEffect(() => {
+    socket.on("message recived", (newMessageReceive) => {
+      if (
+        !selectedChatComapre ||
+        selectedChatComapre._id !== newMessageReceive.chat._id
+      ) {
+        //givr the notification
+      } else {
+        setMessage([...message, newMessageReceive]);
+      }
+    });
+  });
+
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
+
+    if (!socketConnection) return;
+    if (!typing) {
+      setTyping(true);
+      socket.emit("typing", selectedChat._id);
+    }
+    var lastTypingTime = new Date().getTime();
+    var totalTime = 3000;
+    setTimeout(() => {
+      var timeNow = new Date().getTime();
+      var timeDifference = timeNow - lastTypingTime;
+      if (timeDifference > totalTime && typing) {
+        socket.emit("stop typing", selectedChat._id);
+        setTyping(false);
+      }
+    }, totalTime);
   };
 
   return (
@@ -188,8 +209,8 @@ export default function SingleChat({ fetchAgain, setFetchAgain }) {
                 <ScrollableChat message={message} />
               </div>
             )}
-
             <FormControl onKeyDown={sendMessages} isRequired mt={3}>
+              {isTyping ? (<div>Loading....</div>) : (<></>)}
               <Input
                 placeholder="Enter a message"
                 bg={"#E0E0E0"}
